@@ -10,7 +10,7 @@ project/
 │ ├── models/
 │ ├── services/
 │ ├── utils/
-│ └── routers/
+│ └── api/
 │
 ├── tests/
 │
