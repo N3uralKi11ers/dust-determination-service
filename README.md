@@ -11,7 +11,7 @@ project/
 │ ├── tests/
 │ ├── preprocessing.ipynb
 │ ├── train.ipynb
-│ ├── use.ipynb
+│ ├── use.py
 │
 └── requirements.txt
 ```
