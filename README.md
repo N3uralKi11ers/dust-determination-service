@@ -2,6 +2,7 @@
 
 ## Project structure
 
+```md
 project/
 │
 ├── app/
@@ -16,3 +17,4 @@ project/
 ├── data/
 │
 └── requirements.txt
+```
