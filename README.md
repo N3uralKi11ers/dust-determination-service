@@ -5,16 +5,13 @@
 ```md
 project/
 │
-├── app/
-│ ├── main.py
-│ ├── models/
-│ ├── services/
-│ ├── utils/
-│ └── api/
-│
-├── tests/
-│
-├── data/
+├── models/
+│ ├── data/
+│ ├── save_model/
+│ ├── tests/
+│ ├── preprocessing.ipynb
+│ ├── train.ipynb
+│ ├── use.ipynb
 │
 └── requirements.txt
 ```
