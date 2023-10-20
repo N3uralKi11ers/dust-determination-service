@@ -3,7 +3,7 @@
 ## Project structure
 
 ```md
-project/
+server/
 │
 ├── app/
 │ ├── main.py
