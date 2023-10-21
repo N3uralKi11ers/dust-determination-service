@@ -127,7 +127,7 @@ class UNet(nn.Module):
         self.outc = torch.utils.checkpoint(self.outc)
 
 # то есть, если видео длительностью 30 секунд, сохраняется 10 кадров в секунду = всего сохраняется 300 кадров
-SAVING_FRAMES_PER_SECOND = 1/8
+SAVING_FRAMES_PER_SECOND = 2
 
 def format_timedelta(td):
     """Служебная функция для классного форматирования объектов timedelta (например, 00:00:20.05)
