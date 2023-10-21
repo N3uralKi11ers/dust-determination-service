@@ -2,16 +2,11 @@ from datetime import timedelta
 import cv2
 import numpy as np
 import os
+import pandas as pd
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
-import pandas as pd
-
-""" Parts of the U-Net model """
-
-import torch
-import torch.nn as nn
 import torch.nn.functional as F
 
 
@@ -227,11 +222,11 @@ class CustomDataset(Dataset):
 def main2(path_list, epsilon):
     dataset = CustomDataset(path_list)
     batch_size = 1
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=1)
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=1)
     # print(dataset.data)
     model = UNet(3,1)  # Создайте экземпляр вашей модели
     # print(dataset.data)
-    model.load_state_dict(torch.load('/home/denis/code/dust-determination-service/models/save_model/model.pth', map_location='cpu'))
+    model.load_state_dict(torch.load('/Users/daniel/Desktop/Projects/hackathons/dust-determination-service/server/app/services/model.pth', map_location='cpu'))
     model.eval()
     with torch.no_grad():
         df = pd.DataFrame(columns=["name", "time", "proc"])
@@ -248,8 +243,6 @@ def main2(path_list, epsilon):
                 os.makedirs("./res/X")
                 os.makedirs("./res/Y")
             df.loc[len(df)] = [str(i) + ".jpg", i / SAVING_FRAMES_PER_SECOND, torch.sum(Y_pred[0]).item() / Y_pred[0].shape[1] / Y_pred[0].shape[2] * 100]
-            # df = pd.concat([df, pd.DataFrame({"name": str(i) + ".jpg", "time": i / SAVING_FRAMES_PER_SECOND, "proc": torch.sum(Y_pred[0]).item() / Y_pred[0].shape[1] / Y_pred[0].shape[2] * 100})], ignore_index=True)
-            # print(i / SAVING_FRAMES_PER_SECOND, torch.sum(Y_pred[0]) / Y_pred[0].shape[1] / Y_pred[0].shape[2] * 100)
             alpha = 0.2
             Y_pred = Y_pred[0].detach().numpy().transpose(1, 2, 0)
             X_batch = X_batch[0].detach().numpy().transpose(1, 2, 0)
@@ -262,8 +255,9 @@ def main2(path_list, epsilon):
             cv2.imwrite("./res/X/" + str(i) + ".jpg", X_batch)
         df.to_csv('data_time.csv')
         
-if __name__ == "__main__":
-    path = '/home/denis/code/dust-determination-service/data/'
-    path_list = path + 'video.mp4'
+        
+def dust_determination(path: str, file_name: str):
+    # path = '/Users/daniel/Desktop/Projects/hackathons/dust-determination-service/server/data/'
+    path_list = path + file_name
     main1(path_list)
     main2(path_list[:-4], 0.7)
