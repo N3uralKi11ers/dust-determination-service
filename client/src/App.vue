@@ -1,18 +1,15 @@
 <template>
 	<div>
 		<Dropbox />
-		<!-- <VideoPlayerView /> -->
 	</div>
 </template>
 
 <script>
 import Dropbox from './components/Dropbox.vue'
-// import VideoPlayerView from './components/VideoPlayerView.vue'
 
 export default {
 	components: {
 		Dropbox,
-		// VideoPlayerView,
 	},
 	data() {
 		return {}
