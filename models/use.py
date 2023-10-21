@@ -6,6 +6,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
+import pandas as pd
 
 """ Parts of the U-Net model """
 
@@ -233,6 +234,7 @@ def main2(path_list, epsilon):
     model.load_state_dict(torch.load('/home/denis/code/dust-determination-service/models/save_model/model.pth', map_location='cpu'))
     model.eval()
     with torch.no_grad():
+        df = pd.DataFrame(columns=["name", "time", "proc"])
         for i, X_batch in enumerate(dataloader):
             # data to device
             X_batch = X_batch
@@ -245,9 +247,20 @@ def main2(path_list, epsilon):
                 os.makedirs("./res")
                 os.makedirs("./res/X")
                 os.makedirs("./res/Y")
-            print(i / SAVING_FRAMES_PER_SECOND, torch.sum(Y_pred[0]) / Y_pred[0].shape[1] / Y_pred[0].shape[2] * 100)
-            cv2.imwrite("./res/Y/" + str(i) + ".jpg", Y_pred[0].detach().numpy().transpose(1, 2, 0) * 255)
-            cv2.imwrite("./res/X/" + str(i) + ".jpg", X_batch[0].detach().numpy().transpose(1, 2, 0) * 255)
+            df.loc[len(df)] = [str(i) + ".jpg", i / SAVING_FRAMES_PER_SECOND, torch.sum(Y_pred[0]).item() / Y_pred[0].shape[1] / Y_pred[0].shape[2] * 100]
+            # df = pd.concat([df, pd.DataFrame({"name": str(i) + ".jpg", "time": i / SAVING_FRAMES_PER_SECOND, "proc": torch.sum(Y_pred[0]).item() / Y_pred[0].shape[1] / Y_pred[0].shape[2] * 100})], ignore_index=True)
+            # print(i / SAVING_FRAMES_PER_SECOND, torch.sum(Y_pred[0]) / Y_pred[0].shape[1] / Y_pred[0].shape[2] * 100)
+            alpha = 0.2
+            Y_pred = Y_pred[0].detach().numpy().transpose(1, 2, 0)
+            X_batch = X_batch[0].detach().numpy().transpose(1, 2, 0)
+            Y_pred = (Y_pred * 255).astype(np.uint8)
+            X_batch = (X_batch * 255).astype(np.uint8)
+            Y_pred_rgb = cv2.cvtColor(Y_pred, cv2.COLOR_GRAY2RGB)
+            X_batch = cv2.cvtColor(X_batch, cv2.COLOR_BGR2RGB)
+            overlay = cv2.addWeighted(X_batch, 1 - alpha, Y_pred_rgb, alpha, 0)
+            cv2.imwrite("./res/Y/" + str(i) + ".jpg", overlay)
+            cv2.imwrite("./res/X/" + str(i) + ".jpg", X_batch)
+        df.to_csv('data_time.csv')
         
 if __name__ == "__main__":
     path = '/home/denis/code/dust-determination-service/data/'
