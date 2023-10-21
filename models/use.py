@@ -230,7 +230,7 @@ def main2(path_list, epsilon):
     # print(dataset.data)
     model = UNet(3,1)  # Создайте экземпляр вашей модели
     # print(dataset.data)
-    model.load_state_dict(torch.load('./save_model/model.pth', map_location='cpu'))
+    model.load_state_dict(torch.load('/home/denis/code/dust-determination-service/models/save_model/model.pth', map_location='cpu'))
     model.eval()
     with torch.no_grad():
         for i, X_batch in enumerate(dataloader):
@@ -241,11 +241,15 @@ def main2(path_list, epsilon):
             Y_pred = (torch.sigmoid(Y_pred) > epsilon).int()
             # print(torch.sum(Y_pred))
             # print(X_batch[0].shape)
+            if not os.path.isdir("./res"):
+                os.makedirs("./res")
+                os.makedirs("./res/X")
+                os.makedirs("./res/Y")
             cv2.imwrite("./res/Y/" + str(i) + ".jpg", Y_pred[0].detach().numpy().transpose(1, 2, 0) * 255)
             cv2.imwrite("./res/X/" + str(i) + ".jpg", X_batch[0].detach().numpy().transpose(1, 2, 0) * 255)
         
 if __name__ == "__main__":
-    path = '../data/'
+    path = '/home/denis/code/dust-determination-service/data/'
     path_list = path + 'video.mp4'
     main1(path_list)
     main2(path_list[:-4], 0.7)
