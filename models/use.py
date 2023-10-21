@@ -245,6 +245,7 @@ def main2(path_list, epsilon):
                 os.makedirs("./res")
                 os.makedirs("./res/X")
                 os.makedirs("./res/Y")
+            print(i / SAVING_FRAMES_PER_SECOND, torch.sum(Y_pred[0]) / Y_pred[0].shape[1] / Y_pred[0].shape[2] * 100)
             cv2.imwrite("./res/Y/" + str(i) + ".jpg", Y_pred[0].detach().numpy().transpose(1, 2, 0) * 255)
             cv2.imwrite("./res/X/" + str(i) + ".jpg", X_batch[0].detach().numpy().transpose(1, 2, 0) * 255)
         
