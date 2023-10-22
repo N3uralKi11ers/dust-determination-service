@@ -1,19 +1,42 @@
 <template>
-	<div class="w-full bg-red-50">
-		<canvas id="canvas" class="mx-auto w-full h-9"></canvas>
+	<div class="w-full">
+		<canvas id="canvas" class="mx-auto w-full h-6 rounded"></canvas>
 	</div>
 </template>
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted, defineEmits, watch } from 'vue'
 
-function getRelativePosition() {}
+const emit = defineEmits(['percent'])
+const mousePos = ref({ x: 0, y: 0 })
+const relativePos = ref(0)
 
-onMounted(() => {
-	console.log('In onMounted')
-	let canvas = document.getElementById('canvas')
+function getMousePos(canvas, evt) {
+	let rect = canvas.getBoundingClientRect()
+	return {
+		x: evt.clientX - rect.left,
+		y: evt.clientY - rect.top,
+	}
+}
 
-	let ctx = canvas.getContext('2d')
+function getRelativePos(canvas, pos) {
+	return pos.x / canvas.width
+}
 
+function updateCanvasWidth(canvas) {
+	canvas.width = canvas.parentElement.clientWidth
+}
+
+function drawRect(ctx, position) {
+	ctx.fillStyle = 'white'
+	ctx.fillRect(position.x, 0, 4, 200)
+}
+
+function clearCanvas(ctx, canvas) {
+	ctx.clearRect(0, 0, canvas.width, canvas.height)
+	makeGradient(ctx, canvas)
+}
+
+function makeGradient(ctx, canvas) {
 	const colors = [
 		{ color: 'red', position: 0.1 },
 		{ color: 'chartreuse', position: 0.4 },
@@ -30,5 +53,32 @@ onMounted(() => {
 
 	ctx.fillStyle = gradient
 	ctx.fillRect(0, 0, canvas.width, canvas.height)
+}
+
+onMounted(() => {
+	let canvas = document.getElementById('canvas')
+	canvas.width = canvas.parentElement.clientWidth
+	window.addEventListener('resize', updateCanvasWidth)
+
+	let ctx = canvas.getContext('2d')
+
+	makeGradient(ctx, canvas)
+
+	document.addEventListener('mousedown', event => {
+		mousePos.value = getMousePos(canvas, event)
+		relativePos.value = getRelativePos(canvas, mousePos.value)
+		console.log(relativePos.value)
+
+		clearCanvas(ctx, canvas)
+		drawRect(ctx, mousePos.value)
+	})
+})
+
+onUnmounted(() => {
+	window.removeEventListener('resize', updateCanvasWidth)
+})
+
+watch(relativePos, pos => {
+	emit('percent', pos)
 })
 </script>
