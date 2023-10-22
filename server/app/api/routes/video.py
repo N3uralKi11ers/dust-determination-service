@@ -8,7 +8,7 @@ from ...services import dust_determination
 router = APIRouter()
 
 @router.post("/")
-async def create_upload_file(file: UploadFile = File(...)):
+async def upload_video(file: UploadFile = File(...)):
     
     # folder for data
     data_folder_name = 'data'
