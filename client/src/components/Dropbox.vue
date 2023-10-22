@@ -1,8 +1,5 @@
 <template>
-	<div
-		v-if="!isFileUploaded"
-		class="flex items-center justify-center h-screen max-w-xl mx-auto"
-	>
+	<div class="flex">
 		<label
 			for="dropzone-file"
 			class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
@@ -39,28 +36,21 @@
 			/>
 		</label>
 	</div>
-	<div v-else>
-		<pre>
-			{{ resp }}
-		</pre
-		>
-	</div>
 </template>
 
 <script setup>
 import axios from 'axios'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, defineEmits } from 'vue'
 
-const isFileUploaded = ref(false)
+const emit = defineEmits(['close'])
 const videoFile = ref(null)
 const resp = ref(null)
 
 const handleFileUpload = async () => {
-	isFileUploaded.value = videoFile.value !== null
-
 	// send to server
 	const formData = new FormData()
 	formData.append('file', videoFile.value.files[0])
+
 	axios
 		.post('http://0.0.0.0/video/', formData, {
 			headers: {
@@ -70,6 +60,10 @@ const handleFileUpload = async () => {
 		.then(res => {
 			resp.value = res.data
 		})
+
+	if (videoFile.value !== null) {
+		emit('close')
+	}
 }
 
 onMounted(() => {
