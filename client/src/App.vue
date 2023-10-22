@@ -1,18 +1,30 @@
 <template>
 	<div>
-		<Dropbox />
+		<div
+			v-if="videoUploaded"
+			class="items-center justify-center h-screen max-w-xl mx-auto"
+		>
+			<Dropbox @close="videoUploaded = false" />
+		</div>
+		<div v-else>
+			<Images />
+		</div>
 	</div>
 </template>
 
 <script>
 import Dropbox from './components/Dropbox.vue'
+import Images from './components/Images.vue'
 
 export default {
 	components: {
 		Dropbox,
+		Images,
 	},
 	data() {
-		return {}
+		return {
+			videoUploaded: true,
+		}
 	},
 	methods: {
 		sendVideo() {},
