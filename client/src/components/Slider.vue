@@ -4,11 +4,20 @@
 	</div>
 </template>
 <script setup>
-import { ref, onMounted, onUnmounted, defineEmits, watch } from 'vue'
+import axios from 'axios'
+import {
+	ref,
+	onMounted,
+	onUnmounted,
+	defineProps,
+	defineEmits,
+	watch,
+} from 'vue'
 
 const emit = defineEmits(['percent'])
 const mousePos = ref({ x: 0, y: 0 })
 const relativePos = ref(0)
+const colors = ref([])
 
 function getMousePos(canvas, evt) {
 	let rect = canvas.getBoundingClientRect()
@@ -36,18 +45,56 @@ function clearCanvas(ctx, canvas) {
 	makeGradient(ctx, canvas)
 }
 
+// async function getPhotosData() {
+// 	await axios.get('http://0.0.0.0/prediction/').then(resp => {
+// 		const frames = resp.data.frames
+// 		this.photos = frames
+// 	})
+// }
+
+// async function getVideoDuration() {
+// 	await axios.get('http://0.0.0.0/prediction/total-time').then(resp => {
+// 		const time = resp.data
+// 		this.videoDuration = time
+// 	})
+// },
+
+async function colorsForGradient() {
+	const framesResp = await axios.get('http://0.0.0.0/prediction/')
+	const frames = framesResp.data.frames
+
+	const time = await axios.get('http://0.0.0.0/prediction/total-time')
+	const videoDuration = time.data
+
+	const res = []
+
+	for (const photoData of frames) {
+		const percent = photoData.percent
+		const time = photoData.time
+
+		res.push({
+			color: percent > 0 ? 'red' : 'chartreuse',
+			position: time / videoDuration,
+		})
+	}
+
+	return res
+}
+
 function makeGradient(ctx, canvas) {
-	const colors = [
-		{ color: 'red', position: 0.1 },
-		{ color: 'chartreuse', position: 0.4 },
-		{ color: 'red', position: 0.6 },
-		{ color: 'chartreuse', position: 0.8 },
-		{ color: 'red', position: 1 },
-	]
-
 	let gradient = ctx.createLinearGradient(0, 0, canvas.width, 0)
+	colors.value.forEach(function (color) {
+		gradient.addColorStop(color.position, color.color)
+	})
 
-	colors.forEach(function (color) {
+	ctx.fillStyle = gradient
+	ctx.fillRect(0, 0, canvas.width, canvas.height)
+}
+
+async function initGradient(ctx, canvas) {
+	colors.value = await colorsForGradient()
+	let gradient = ctx.createLinearGradient(0, 0, canvas.width, 0)
+	colors.value.forEach(function (color) {
 		gradient.addColorStop(color.position, color.color)
 	})
 
@@ -62,12 +109,12 @@ onMounted(() => {
 
 	let ctx = canvas.getContext('2d')
 
-	makeGradient(ctx, canvas)
+	initGradient(ctx, canvas)
+	// clearCanvas(ctx, canvas)
 
 	document.addEventListener('mousedown', event => {
 		mousePos.value = getMousePos(canvas, event)
 		relativePos.value = getRelativePos(canvas, mousePos.value)
-		console.log(relativePos.value)
 
 		clearCanvas(ctx, canvas)
 		drawRect(ctx, mousePos.value)
