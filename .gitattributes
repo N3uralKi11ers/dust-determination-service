@@ -1,2 +1,1 @@
 models/save_model/model.pth filter=lfs diff=lfs merge=lfs -text
-video_ML/video.mkv filter=lfs diff=lfs merge=lfs -text
