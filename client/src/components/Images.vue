@@ -1,7 +1,7 @@
 <template>
 	<div>
-		<img :src="getImageBefore()" alt="Image_before" />
-		<img :src="getImageAfter()" alt="Image_after" />
+		<img :src="getImageBefore()" alt="Image_before" class="inline w-1/2" />
+		<img :src="getImageAfter()" alt="Image_after" class="inline w-1/2" />
 	</div>
 </template>
 <script>

@@ -8,6 +8,9 @@
 		</div>
 		<div v-else>
 			<Images />
+			<div class="mt-8">
+				<Slider />
+			</div>
 		</div>
 	</div>
 </template>
@@ -15,11 +18,13 @@
 <script>
 import Dropbox from './components/Dropbox.vue'
 import Images from './components/Images.vue'
+import Slider from './components/Slider.vue'
 
 export default {
 	components: {
 		Dropbox,
 		Images,
+		Slider,
 	},
 	data() {
 		return {
