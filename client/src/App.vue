@@ -7,10 +7,11 @@
 			<Dropbox @close="videoUploaded = false" />
 		</div>
 		<div v-else>
-			<Images />
+			<Images :imageId="currentImageNumber" />
 			<div class="mt-8">
-				<Slider />
+				<Slider @percent="saveCurrentPercent" />
 			</div>
+			{{ currentImageNumber }}
 		</div>
 	</div>
 </template>
@@ -29,10 +30,20 @@ export default {
 	data() {
 		return {
 			videoUploaded: true,
+			currentImagePercent: 0,
+			imagesCount: 17,
 		}
+	},
+	computed: {
+		currentImageNumber() {
+			return Math.round(this.imagesCount * this.currentImagePercent)
+		},
 	},
 	methods: {
 		sendVideo() {},
+		saveCurrentPercent(percent) {
+			this.currentImagePercent = percent
+		},
 	},
 }
 </script>
