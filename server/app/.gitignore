@@ -1,0 +1,19 @@
+# environments
+
+env
+env/
+venv
+venv/
+.env
+
+# cache
+
+__pycache__/
+
+# vscode
+
+.vscode/
+
+# Project files
+
+services/model.pth
