@@ -25,3 +25,9 @@ def get_frames_count() -> int:
 	df = pd.read_csv('data/data_time.csv')
 	num_of_rows = df.shape[0]
 	return num_of_rows
+
+
+@router.get("/total-time")
+def get_total_time() -> float:
+    step = 0.5 # step for frame
+    return get_frames_count() * step
