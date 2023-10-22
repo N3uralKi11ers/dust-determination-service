@@ -1,5 +1,6 @@
 from datetime import timedelta
 import cv2
+import pandas as pd
 import numpy as np
 import os
 import torch
@@ -233,6 +234,7 @@ def main2(path_list, epsilon):
     model.load_state_dict(torch.load('/Users/daniel/Desktop/Projects/hackathons/dust-determination-service/server/app/services/model.pth', map_location='cpu'))
     model.eval()
     with torch.no_grad():
+        df = pd.DataFrame(columns=["name", "time", "proc"])
         for i, X_batch in enumerate(dataloader):
             # data to device
             X_batch = X_batch
@@ -245,8 +247,18 @@ def main2(path_list, epsilon):
                 os.makedirs("./data/res")
                 os.makedirs("./data/res/X")
                 os.makedirs("./data/res/Y")
-            cv2.imwrite("./data/res/Y/" + str(i) + ".jpg", Y_pred[0].detach().numpy().transpose(1, 2, 0) * 255)
-            cv2.imwrite("./data/res/X/" + str(i) + ".jpg", X_batch[0].detach().numpy().transpose(1, 2, 0) * 255)
+            df.loc[len(df)] = [str(i) + ".jpg", i / SAVING_FRAMES_PER_SECOND, torch.sum(Y_pred[0]).item() / Y_pred[0].shape[1] / Y_pred[0].shape[2] * 100]
+            alpha = 0.2
+            Y_pred = Y_pred[0].detach().numpy().transpose(1, 2, 0)
+            X_batch = X_batch[0].detach().numpy().transpose(1, 2, 0)
+            Y_pred = (Y_pred * 255).astype(np.uint8)
+            X_batch = (X_batch * 255).astype(np.uint8)
+            Y_pred_rgb = cv2.cvtColor(Y_pred, cv2.COLOR_GRAY2RGB)
+            X_batch = cv2.cvtColor(X_batch, cv2.COLOR_BGR2RGB)
+            overlay = cv2.addWeighted(X_batch, 1 - alpha, Y_pred_rgb, alpha, 0)
+            cv2.imwrite("./data/res/Y/" + str(i) + ".jpg", overlay)
+            cv2.imwrite("./data/res/X/" + str(i) + ".jpg", X_batch)
+        df.to_csv('./data/data_time.csv')
         
         
 def dust_determination(path: str, file_name: str):
